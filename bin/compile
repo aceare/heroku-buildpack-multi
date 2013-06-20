@@ -19,7 +19,7 @@ for BUILDPACK in $(cat $1/.buildpacks); do
   url=${BUILDPACK%#*}
   branch=${BUILDPACK#*#}
 
-echo "=====> DBG: dollar 1, 2: $1, $2"
+echo "===============> DBG: dollar 1, 2: $1, $2"
 echo "=====> DBG: url, branch: $url, $branch"
 echo "=====> DBG: dir: $dir"
 
@@ -36,7 +36,7 @@ echo "=====> DBG: dir: $dir"
     else
       git clone $url $dir >/dev/null 2>&1
     fi
-echo "=====> DBG: download/cloned: $url"
+echo "=====> DBG: downloaded/cloned: $url"
     cd $dir
 echo "=====> DBG: entered $dir"
 
@@ -49,8 +49,13 @@ echo "=====> DBG: going to do chmod: $dir/bin/{detect,compile,release}"
     # we'll get errors later if these are needed and don't exist
     chmod -f +x $dir/bin/{detect,compile,release} || true
 
+    if [[ "$url" =~ ruby ]]; then
+      framework="Ruby/Rails"
+echo "=====> DBG: skipping detect. set framework: $framework"
+    else
 echo "=====> DBG: going to do: $dir/bin/detect $1"
-    framework=$($dir/bin/detect $1)
+      framework=$($dir/bin/detect $1)
+    fi
 
     if [ $? == 0 ]; then
       echo "=====> Detected Framework: $framework"
