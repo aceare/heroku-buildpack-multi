@@ -19,6 +19,10 @@ for BUILDPACK in $(cat $1/.buildpacks); do
   url=${BUILDPACK%#*}
   branch=${BUILDPACK#*#}
 
+echo "=====> DBG: dollar 1, 2: $1, $2"
+echo "=====> DBG: url, branch: $url, $branch"
+echo "=====> DBG: dir: $dir"
+
   if [ "$branch" == "$url" ]; then
     branch=""
   fi
@@ -32,15 +36,20 @@ for BUILDPACK in $(cat $1/.buildpacks); do
     else
       git clone $url $dir >/dev/null 2>&1
     fi
+echo "=====> DBG: download/cloned: $url"
     cd $dir
+echo "=====> DBG: entered $dir"
 
     if [ "$branch" != "" ]; then
+echo "=====> DBG: getting branch: $branch"
       git checkout $branch >/dev/null 2>&1
     fi
 
+echo "=====> DBG: going to do chmod: $dir/bin/{detect,compile,release}"
     # we'll get errors later if these are needed and don't exist
     chmod -f +x $dir/bin/{detect,compile,release} || true
 
+echo "=====> DBG: going to do: $dir/bin/detect $1"
     framework=$($dir/bin/detect $1)
 
     if [ $? == 0 ]; then
@@ -51,7 +60,9 @@ for BUILDPACK in $(cat $1/.buildpacks); do
         exit 1
       fi
 
+echo "=====> DBG: done: $dir/bin/compile $1 $2"
       if [ -x $dir/bin/release ]; then
+echo "=====> DBG: going to do: $dir/bin/release $1"
         $dir/bin/release $1 > $1/last_pack_release.out
       fi
     fi
