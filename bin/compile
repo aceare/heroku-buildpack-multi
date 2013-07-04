@@ -49,15 +49,25 @@ echo "=====> DBG: going to do chmod: $dir/bin/{detect,compile,release}"
     # we'll get errors later if these are needed and don't exist
     chmod -f +x $dir/bin/{detect,compile,release} || true
 
-    if [[ "$url" =~ ruby ]]; then
-      framework="Ruby/Rails"
-echo "=====> DBG: skipping detect. set framework: $framework"
-    else
-echo "=====> DBG: going to do: $dir/bin/detect $1"
-      framework=$($dir/bin/detect $1)
-    fi
+#    if [[ "$url" =~ ruby ]]; then
+#      framework="Ruby/Rails"
+#echo "=====> DBG: skipping detect. set framework: $framework"
+#    else
+#echo "=====> DBG: going to do: $dir/bin/detect $1"
+#      framework=$($dir/bin/detect $1)
+#    fi
 
-    if [ $? == 0 ]; then
+#    if [ $? == 0 ]; then
+
+# patch #12
+    set +e
+echo "=====> DBG: going to do: $dir/bin/detect $1"
+    framework=$($dir/bin/detect $1)
+    exit_code=$?
+echo "=====> DBG: Exit_Code $exit_code, Framework $framework"
+    set -e
+ 
+    if [ $exit_code == 0 ]; then
       echo "=====> Detected Framework: $framework"
       $dir/bin/compile $1 $2
 
